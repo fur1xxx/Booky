@@ -3,10 +3,13 @@ using Booky.Models;
 using Microsoft.AspNetCore.Mvc;
 using Booky.DataAccess.Repository;
 using Booky.DataAccess.Repository.IRepository;
+using Microsoft.AspNetCore.Authorization;
+using Booky.Utility;
 
 namespace BookyWeb.Areas.Admin.Controllers
 {
     [Area("Admin")]
+    [Authorize(Roles = SD.Role_Admin)]
     public class CategoryController : Controller
     {
         private readonly IUnitOfWork unitOfWork;
