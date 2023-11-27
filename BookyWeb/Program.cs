@@ -2,6 +2,8 @@ using Booky.DataAccess.Data;
 using Booky.DataAccess.Repository;
 using Booky.DataAccess.Repository.IRepository;
 using Booky.Models;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 
 
 namespace BookyWeb
@@ -11,6 +13,7 @@ namespace BookyWeb
         private static void Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
+           
 
             // Add services to the container.
             builder.Services.AddControllersWithViews()
@@ -20,6 +23,8 @@ namespace BookyWeb
 
 
             builder.Services.AddDbContext<ApplicationDbContext>();
+
+            builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true).AddEntityFrameworkStores<ApplicationDbContext>();
             builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
             var app = builder.Build();
