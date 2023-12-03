@@ -17,10 +17,13 @@ namespace Booky.DataAccess.Repository
             this.dbContext = dbContext;
             Category = new CategoryRepository(dbContext);
             Product = new ProductRepository(dbContext);
+            Company = new CompanyRepository(dbContext);
         }
 
         public IProductRepository Product { get; private set; }
         public ICategoryRepository Category {get; private set;}
+
+        public ICompanyRepository Company { get; private set; }
 
         public void Save()
         {

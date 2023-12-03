@@ -4,6 +4,7 @@ using Booky.DataAccess.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Booky.DataAccess.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20231203172631_AddCompanyTableToDB")]
+    partial class AddCompanyTableToDB
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -74,9 +77,8 @@ namespace Booky.DataAccess.Migrations
                     b.Property<string>("City")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<int>("Name")
+                        .HasColumnType("int");
 
                     b.Property<string>("PhoneNumber")
                         .HasColumnType("nvarchar(max)");
@@ -93,38 +95,6 @@ namespace Booky.DataAccess.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Companies");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            City = "Tech City",
-                            Name = "Tech Solution",
-                            PhoneNumber = "6669990000",
-                            PostalCode = "12121",
-                            State = "IL",
-                            StreetAdress = "123 Tech St"
-                        },
-                        new
-                        {
-                            Id = 2,
-                            City = "Vid City",
-                            Name = "Vivid Books",
-                            PhoneNumber = "7779990000",
-                            PostalCode = "66666",
-                            State = "IL",
-                            StreetAdress = "999 Vid St"
-                        },
-                        new
-                        {
-                            Id = 3,
-                            City = "Lala land",
-                            Name = "Readers Club",
-                            PhoneNumber = "1113335555",
-                            PostalCode = "99999",
-                            State = "NY",
-                            StreetAdress = "999 Main St"
-                        });
                 });
 
             modelBuilder.Entity("Booky.Models.Product", b =>
@@ -476,9 +446,6 @@ namespace Booky.DataAccess.Migrations
                     b.Property<string>("City")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int?>("CompanyId")
-                        .HasColumnType("int");
-
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -491,10 +458,6 @@ namespace Booky.DataAccess.Migrations
 
                     b.Property<string>("StreetAddress")
                         .HasColumnType("nvarchar(max)");
-
-                    b.HasIndex("CompanyId")
-                        .IsUnique()
-                        .HasFilter("[CompanyId] IS NOT NULL");
 
                     b.HasDiscriminator().HasValue("ApplicationUser");
                 });
@@ -561,24 +524,9 @@ namespace Booky.DataAccess.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("Booky.Models.ApplicationUser", b =>
-                {
-                    b.HasOne("Booky.Models.Company", "Company")
-                        .WithOne("User")
-                        .HasForeignKey("Booky.Models.ApplicationUser", "CompanyId");
-
-                    b.Navigation("Company");
-                });
-
             modelBuilder.Entity("Booky.Models.Category", b =>
                 {
                     b.Navigation("Products");
-                });
-
-            modelBuilder.Entity("Booky.Models.Company", b =>
-                {
-                    b.Navigation("User")
-                        .IsRequired();
                 });
 #pragma warning restore 612, 618
         }
