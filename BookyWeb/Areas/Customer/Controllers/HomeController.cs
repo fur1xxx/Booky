@@ -4,6 +4,8 @@ using System.Diagnostics;
 using Booky.DataAccess.Repository.IRepository;
 using Microsoft.AspNetCore.Authorization;
 using System.Security.Claims;
+using Booky.Utility;
+using Microsoft.AspNetCore.Http;
 
 namespace BookyWeb.Areas.Customer.Controllers
 {
@@ -21,6 +23,14 @@ namespace BookyWeb.Areas.Customer.Controllers
 
         public IActionResult Index()
         {
+            var claimsIdentity = (ClaimsIdentity)User.Identity;
+            var claim = claimsIdentity.FindFirst(ClaimTypes.NameIdentifier);
+
+            if (claim != null)
+            {
+                HttpContext.Session.SetInt32(SD.SessionCart, unitOfWork.ShoppingCart.GetAll(x => x.ApplicationUserId == claim.Value).Count());
+            }
+
             IEnumerable<Product> productList = unitOfWork.Product.GetAll(includeProperties: "Category");
 
             return View(productList);
@@ -50,19 +60,19 @@ namespace BookyWeb.Areas.Customer.Controllers
 
             if (shoppingCartFromDb != null)
             {
-                //shopping cart exists
                 shoppingCartFromDb.Count += shoppingCart.Count;
                 unitOfWork.ShoppingCart.Update(shoppingCartFromDb);
+                unitOfWork.Save();
             }
             else
             {
                 //add shopping cart record
                 unitOfWork.ShoppingCart.Add(shoppingCart);
+                unitOfWork.Save();
+                HttpContext.Session.SetInt32(SD.SessionCart, unitOfWork.ShoppingCart.GetAll(x => x.ApplicationUserId == userId).Count());
             }
 
             TempData["success"] = "Cart was updated successfully";
-          
-            unitOfWork.Save();
 
             return RedirectToAction(nameof(Index));
         }

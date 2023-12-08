@@ -38,6 +38,20 @@ namespace BookyWeb
             }
            );
 
+            builder.Services.AddAuthentication().AddFacebook(option =>
+            {
+                option.AppId = "203740316122991";
+                option.AppSecret = "d645ebbac7f9757d7d6c61e159da7975";
+            });
+
+            builder.Services.AddDistributedMemoryCache();
+            builder.Services.AddSession(options =>
+            {
+                options.IdleTimeout = TimeSpan.FromMinutes(100);
+                options.Cookie.HttpOnly = true;
+                options.Cookie.IsEssential = true;
+            });
+
             builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
             builder.Services.AddScoped<IEmailSender, EmailSender>();
 
@@ -59,6 +73,8 @@ namespace BookyWeb
             app.UseAuthentication();
 
             app.UseAuthorization();
+
+            app.UseSession();
 
             app.MapRazorPages();
 

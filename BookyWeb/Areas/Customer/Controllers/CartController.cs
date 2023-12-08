@@ -180,6 +180,8 @@ namespace BookyWeb.Areas.Customer.Controllers
                     unitOfWork.OrderHeader.UpdateStatus(id, SD.StatusApproved, SD.PaymentStatusApproved);
                     unitOfWork.Save();
                 }
+
+                HttpContext.Session.Clear();
             }
 
             List<ShoppingCart> shoppingCarts = unitOfWork.ShoppingCart.GetAll(x => x.ApplicationUserId == orderHeader.ApplicationUserId).ToList();
@@ -203,11 +205,12 @@ namespace BookyWeb.Areas.Customer.Controllers
 
         public IActionResult Minus(int cartId)
         {
-            var shoppingCartFromDb = unitOfWork.ShoppingCart.Get(x => x.Id == cartId);
+            var shoppingCartFromDb = unitOfWork.ShoppingCart.Get(x => x.Id == cartId, tracked: true);
 
             if (shoppingCartFromDb.Count <= 1)
             {
                 //remove item from shopping cart
+                HttpContext.Session.SetInt32(SD.SessionCart, unitOfWork.ShoppingCart.GetAll(x => x.ApplicationUserId == shoppingCartFromDb.ApplicationUserId).Count() - 1);
                 unitOfWork.ShoppingCart.Delete(shoppingCartFromDb);
             }
             else
@@ -223,7 +226,9 @@ namespace BookyWeb.Areas.Customer.Controllers
 
         public IActionResult Remove(int cartId)
         {
-            var shoppingCartFromDb = unitOfWork.ShoppingCart.Get(x => x.Id == cartId);
+            var shoppingCartFromDb = unitOfWork.ShoppingCart.Get(x => x.Id == cartId, tracked: true);
+
+            HttpContext.Session.SetInt32(SD.SessionCart, unitOfWork.ShoppingCart.GetAll(x => x.ApplicationUserId == shoppingCartFromDb.ApplicationUserId).Count() - 1);
 
             unitOfWork.ShoppingCart.Delete(shoppingCartFromDb);
 

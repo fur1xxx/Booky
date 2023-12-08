@@ -44,11 +44,11 @@ namespace Booky.DataAccess.Repository
 
             if (tracked)
             {
-                query = dbSet.AsNoTracking();
+                query = dbSet;
             }
             else
             {
-                query = dbSet;
+                query = dbSet.AsNoTracking();
             }
 
             query = query.Where(filter);
