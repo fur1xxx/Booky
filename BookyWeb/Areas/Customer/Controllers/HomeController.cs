@@ -31,7 +31,7 @@ namespace BookyWeb.Areas.Customer.Controllers
                 HttpContext.Session.SetInt32(SD.SessionCart, unitOfWork.ShoppingCart.GetAll(x => x.ApplicationUserId == claim.Value).Count());
             }
 
-            IEnumerable<Product> productList = unitOfWork.Product.GetAll(includeProperties: "Category");
+            IEnumerable<Product> productList = unitOfWork.Product.GetAll(includeProperties: "Category,ProductImages");
 
             return View(productList);
         }
@@ -40,7 +40,7 @@ namespace BookyWeb.Areas.Customer.Controllers
         {
             ShoppingCart shoppingCart = new()
             {
-                Product = unitOfWork.Product.Get(x => x.Id == productId, includeProperties: "Category"),
+                Product = unitOfWork.Product.Get(x => x.Id == productId, includeProperties: "Category,ProductImages"),
                 Count = 1,
                 ProductId = productId
             };

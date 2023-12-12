@@ -147,9 +147,9 @@ namespace BookyWeb.Areas.Admin.Controllers
         public IActionResult DetailsPayNow()
         {
             OrderVM.OrderHeader = unitOfWork.OrderHeader.Get(x => x.Id == OrderVM.OrderHeader.Id, includeProperties: "ApplicationUser");
-            OrderVM.OrderDetail = unitOfWork.OrderDetail.GetAll(x => x.Id == OrderVM.OrderHeader.Id, includeProperties: "Product");
+            OrderVM.OrderDetail = unitOfWork.OrderDetail.GetAll(x => x.OrderHeaderId == OrderVM.OrderHeader.Id, includeProperties: "Product");
 
-            var domain = "https://localhost:7270/";
+            var domain = Request.Scheme + "://" + Request.Host.Value + "/";
             var options = new Stripe.Checkout.SessionCreateOptions
             {
                 SuccessUrl = domain + $"admin/order/PaymentConfirmation?orderHeaderId={OrderVM.OrderHeader.Id}",
@@ -190,7 +190,7 @@ namespace BookyWeb.Areas.Admin.Controllers
         public IActionResult PaymentConfirmation(int orderHeaderId)
         {
             OrderHeader orderHeader = unitOfWork.OrderHeader.Get(x => x.Id == orderHeaderId, includeProperties: "ApplicationUser");
-            if (orderHeader.PaymentStatus != SD.PaymentStatusDelayedPayment)
+            if (orderHeader.PaymentStatus == SD.PaymentStatusDelayedPayment)
             {
                 var service = new SessionService();
                 Session session = service.Get(orderHeader.SessionId);
@@ -201,6 +201,7 @@ namespace BookyWeb.Areas.Admin.Controllers
                     unitOfWork.OrderHeader.UpdateStatus(orderHeaderId, orderHeader.OrderStatus, SD.PaymentStatusApproved);
                     unitOfWork.Save();
                 }
+
             }
 
             List<ShoppingCart> shoppingCarts = unitOfWork.ShoppingCart.GetAll(x => x.ApplicationUserId == orderHeader.ApplicationUserId).ToList();

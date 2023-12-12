@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -14,7 +15,7 @@ namespace Booky.Models
         [Required]
         public string Name { get; set; }
 
-        public string? StreetAddress {  get; set; }
+        public string? StreetAddress { get; set; }
 
         public string? City { get; set; }
 
@@ -25,6 +26,9 @@ namespace Booky.Models
         public int? CompanyId { get; set; }
 
         [ValidateNever]
-        public Company Company { get; set; }
+        public Company? Company { get; set; }
+
+        [NotMapped]
+        public string Role { get; set; }
     }
 }

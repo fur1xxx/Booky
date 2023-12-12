@@ -1,28 +1,28 @@
 ﻿using Booky.DataAccess.Data;
 using Booky.DataAccess.Repository.IRepository;
 using Booky.Models;
-using Microsoft.EntityFrameworkCore.Metadata;
 using System;
 using System.Collections.Generic;
-using System.Data.Common;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace Booky.DataAccess.Repository
 {
-    public class ApplicationUserRepository : Repository<ApplicationUser>, IApplicationUserRepository
+    public class ProductImageRepository : Repository<ProductImage>, IProductImageRepository
     {
+
         private readonly ApplicationDbContext dbContext;
 
-        public ApplicationUserRepository(ApplicationDbContext dbContext) : base(dbContext)
+        public ProductImageRepository(ApplicationDbContext dbContext) : base(dbContext) 
         {
             this.dbContext = dbContext;
         }
 
-        public void Update(ApplicationUser applicationUser)
+
+        public void Update(ProductImage productImage)
         {
-            dbContext.ApplicationUsers.Update(applicationUser);
+            dbContext.ProductImages.Update(productImage);
         }
     }
 }

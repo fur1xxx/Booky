@@ -8,6 +8,8 @@ using System.Text.Json.Serialization;
 using System.Text.Json;
 using Booky.Utility;
 using Microsoft.AspNetCore.Authorization;
+using Booky.DataAccess.Migrations;
+using Microsoft.Identity.Client;
 
 namespace BookyWeb.Areas.Admin.Controllers
 {
@@ -21,12 +23,12 @@ namespace BookyWeb.Areas.Admin.Controllers
         public ProductController(IUnitOfWork unitOfWork, IWebHostEnvironment webHostEnvironment)
         {
             this.unitOfWork = unitOfWork;
-            this.webHostEnvironment = webHostEnvironment;   
+            this.webHostEnvironment = webHostEnvironment;
         }
 
         public IActionResult Index()
         {
-            List<Product> objProductList = unitOfWork.Product.GetAll(includeProperties:"Category").ToList();
+            List<Product> objProductList = unitOfWork.Product.GetAll(includeProperties: "Category").ToList();
 
             return View(objProductList);
         }
@@ -56,55 +58,65 @@ namespace BookyWeb.Areas.Admin.Controllers
             else
             {
                 //Update
-                productVM.Product = unitOfWork.Product.Get(x => x.Id == id);
-                return View(productVM); 
+                productVM.Product = unitOfWork.Product.Get(x => x.Id == id, includeProperties: "ProductImages");
+                return View(productVM);
             }
         }
 
         [HttpPost]
-        public IActionResult Upsert(ProductVM productVM, IFormFile? file)
+        public IActionResult Upsert(ProductVM productVM, List<IFormFile> files)
         {
             if (ModelState.IsValid)
             {
-                string wwwRootPath = webHostEnvironment.WebRootPath;
-
-                if (file != null)
-                {
-                    string fileName = Guid.NewGuid().ToString() + Path.GetExtension(file.FileName);
-                    string productPath = Path.Combine(wwwRootPath, @"images/product");
-
-                    if (!string.IsNullOrEmpty(productVM.Product.ImageUrl))
-                    {
-                        //delete old image
-                        var oldImagePath = Path.Combine(wwwRootPath, productVM.Product.ImageUrl.TrimStart('\\'));
-
-                        if (System.IO.File.Exists(oldImagePath))
-                        {
-                            System.IO.File.Delete(oldImagePath);
-                        }
-                    }
-
-                    using (var fileStream = new FileStream(Path.Combine(productPath, fileName), FileMode.Create))
-                    {
-                        file.CopyTo(fileStream);    
-                    }
-
-                    productVM.Product.ImageUrl = @"\images\product\" + fileName;
-                }
-
                 if (productVM.Product.Id == 0)
                 {
                     unitOfWork.Product.Add(productVM.Product);
-                    TempData["success"] = "Product was created successfully";
                 }
                 else
                 {
                     unitOfWork.Product.Update(productVM.Product);
-                    TempData["success"] = "Product was updated successfully";
                 }
-
                 unitOfWork.Save();
 
+                string wwwRootPath = webHostEnvironment.WebRootPath;
+
+                if (files != null)
+                {
+                    foreach (var file in files)
+                    {
+                        string fileName = Guid.NewGuid().ToString() + Path.GetExtension(file.FileName);
+                        string productPath = @"images\products\product-" + productVM.Product.Id;
+                        string finalPath = Path.Combine(wwwRootPath, productPath);
+
+                        if (!Directory.Exists(finalPath))
+                        {
+                            Directory.CreateDirectory(finalPath);
+                        }
+
+                        using (var fileStream = new FileStream(Path.Combine(finalPath, fileName), FileMode.Create))
+                        {
+                            file.CopyTo(fileStream);
+                        }
+
+                        ProductImage productImage = new()
+                        {
+                            ImageUrl = @"\" + productPath + @"\" + fileName,
+                            ProductId = productVM.Product.Id,
+                        };
+
+                        if (productVM.Product.ProductImages == null)
+                        {
+                            productVM.Product.ProductImages = new List<ProductImage>();
+                        }
+
+                        productVM.Product.ProductImages.Add(productImage);
+                    }
+
+                    unitOfWork.Product.Update(productVM.Product);
+                    unitOfWork.Save();
+                }
+
+                TempData["success"] = "Product was created/updated successfully";
                 return RedirectToAction(nameof(Index));
             }
             else
@@ -119,6 +131,30 @@ namespace BookyWeb.Areas.Admin.Controllers
             }
         }
 
+        public IActionResult DeleteImage(int imageId)
+        {
+            var imageToDelete = unitOfWork.ProductImage.Get(x => x.Id == imageId);
+
+            int productId = imageToDelete.ProductId;
+
+            if (!string.IsNullOrEmpty(imageToDelete.ImageUrl))
+            {
+                var oldImagePath = Path.Combine(webHostEnvironment.WebRootPath, imageToDelete.ImageUrl.TrimStart('\\'));
+
+                if (System.IO.File.Exists(oldImagePath))
+                {
+                    System.IO.File.Delete(oldImagePath);
+                }
+
+                unitOfWork.ProductImage.Delete(imageToDelete);
+                unitOfWork.Save();
+
+                TempData["success"] = "Image was deleted successfully";
+            }
+
+            return RedirectToAction(nameof(Upsert), new { id = productId });
+        }
+
         #region API CALLS
         [HttpGet]
         public IActionResult GetAll()
@@ -131,7 +167,7 @@ namespace BookyWeb.Areas.Admin.Controllers
             //    // Other serializator's parameters
             //};
 
-            return Json(new {data = objProductList});   
+            return Json(new { data = objProductList });
         }
 
         [HttpDelete]
@@ -141,14 +177,22 @@ namespace BookyWeb.Areas.Admin.Controllers
 
             if (productToBeDeleted == null)
             {
-                return Json(new {success = false, message = "Error while deleting" });
+                return Json(new { success = false, message = "Error while deleting" });
             }
 
-            var oldImagePath = Path.Combine(webHostEnvironment.WebRootPath, productToBeDeleted.ImageUrl.TrimStart('\\'));
+            string productPath = @"images\products\product-" + id;
+            string finalPath = Path.Combine(webHostEnvironment.WebRootPath, productPath);
 
-            if (System.IO.File.Exists(oldImagePath))
+            if (Directory.Exists(finalPath))
             {
-                System.IO.File.Delete(oldImagePath);   
+                string[] filePaths = Directory.GetFiles(finalPath);
+
+                foreach (string filePath in filePaths)
+                {
+                    System.IO.File.Delete(filePath);
+                }
+
+                Directory.Delete(finalPath);
             }
 
             unitOfWork.Product.Delete(productToBeDeleted);

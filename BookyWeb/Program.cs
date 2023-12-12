@@ -1,4 +1,5 @@
 using Booky.DataAccess.Data;
+using Booky.DataAccess.DbInitializer;
 using Booky.DataAccess.Repository;
 using Booky.DataAccess.Repository.IRepository;
 using Booky.Models;
@@ -54,6 +55,7 @@ namespace BookyWeb
 
             builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
             builder.Services.AddScoped<IEmailSender, EmailSender>();
+            builder.Services.AddScoped<IDbInitializer, DbInitializer>();
 
             var app = builder.Build();
 
@@ -76,6 +78,8 @@ namespace BookyWeb
 
             app.UseSession();
 
+            SeedDatabase(app);
+
             app.MapRazorPages();
 
             app.MapControllerRoute(
@@ -83,6 +87,15 @@ namespace BookyWeb
                 pattern: "{area=Customer}/{controller=Home}/{action=Index}/{id?}");
 
             app.Run();
+        }
+
+        private static void SeedDatabase(WebApplication app)
+        {
+            using (var scope = app.Services.CreateScope())
+            {
+                IDbInitializer dbInitializer = scope.ServiceProvider.GetRequiredService<IDbInitializer>();
+                dbInitializer.Initialize();
+            }
         }
     }
 }

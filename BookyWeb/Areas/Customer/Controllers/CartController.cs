@@ -4,6 +4,7 @@ using Booky.Models.ViewModels;
 using Booky.Utility;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Stripe;
 using Stripe.Checkout;
 using System.Security.Claims;
 
@@ -34,8 +35,11 @@ namespace BookyWeb.Areas.Customer.Controllers
                 OrderHeader = new OrderHeader()
             };
 
+            IEnumerable<ProductImage> productImages = unitOfWork.ProductImage.GetAll();
+
             foreach (var cart in ShoppingCartVM.ShoppingCartList)
             {
+                cart.Product.ProductImages = productImages.Where(x => x.ProductId == cart.Product.Id).ToList();
                 cart.Price = GetPriceBasedOnQuantity(cart);
                 ShoppingCartVM.OrderHeader.OrderTotal += (cart.Price * cart.Count);
             }
@@ -125,7 +129,7 @@ namespace BookyWeb.Areas.Customer.Controllers
             {
                 //it is a regular customer acc and we need to capture payment
                 //stripe logic
-                var domain = "https://localhost:7270/";
+                var domain = Request.Scheme + "://" + Request.Host.Value + "/";
                 var options = new Stripe.Checkout.SessionCreateOptions
                 {
                     SuccessUrl = domain + $"customer/cart/OrderConfirmation?id={ShoppingCartVM.OrderHeader.Id}",
@@ -181,8 +185,9 @@ namespace BookyWeb.Areas.Customer.Controllers
                     unitOfWork.Save();
                 }
 
-                HttpContext.Session.Clear();
             }
+
+            HttpContext.Session.Clear();
 
             List<ShoppingCart> shoppingCarts = unitOfWork.ShoppingCart.GetAll(x => x.ApplicationUserId == orderHeader.ApplicationUserId).ToList();
 

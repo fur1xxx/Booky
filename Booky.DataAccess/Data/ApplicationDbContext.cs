@@ -17,6 +17,7 @@ namespace Booky.DataAccess.Data
         public DbSet<ShoppingCart> ShoppingCarts { get; set; }
         public DbSet<OrderHeader> OrderHeaders { get; set; }
         public DbSet<OrderDetail> OrderDetails { get; set; }
+        public DbSet<ProductImage> ProductImages { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -58,7 +59,6 @@ namespace Booky.DataAccess.Data
                     PriceForFifty = 85,
                     PriceForOneHundred = 80,
                     CategoryId = 3,
-                    ImageUrl = ""
                 },
                 new Product
                 {
@@ -72,7 +72,6 @@ namespace Booky.DataAccess.Data
                     PriceForFifty = 25,
                     PriceForOneHundred = 20,
                     CategoryId = 1,
-                    ImageUrl = ""
                 },
                 new Product
                 {
@@ -86,7 +85,6 @@ namespace Booky.DataAccess.Data
                     PriceForFifty = 40,
                     PriceForOneHundred = 35,
                     CategoryId = 1,
-                    ImageUrl = ""
                 },
                 new Product
                 {
@@ -100,7 +98,6 @@ namespace Booky.DataAccess.Data
                     PriceForFifty = 60,
                     PriceForOneHundred = 55,
                     CategoryId = 3,
-                    ImageUrl = ""
                 },
                 new Product
                 {
@@ -114,7 +111,6 @@ namespace Booky.DataAccess.Data
                     PriceForFifty = 25,
                     PriceForOneHundred = 20,
                     CategoryId = 2,
-                    ImageUrl = ""
                 },
                 new Product
                 {
@@ -128,7 +124,6 @@ namespace Booky.DataAccess.Data
                     PriceForFifty = 22,
                     PriceForOneHundred = 20,
                     CategoryId = 1,
-                    ImageUrl = ""
                 }
                 );
 

@@ -7,8 +7,8 @@ using System.Threading.Tasks;
 
 namespace Booky.DataAccess.Repository.IRepository
 {
-    public interface IApplicationUserRepository : IRepository<ApplicationUser>
+    public interface IProductImageRepository : IRepository<ProductImage>
     {
-        void Update(ApplicationUser applicationUser);
+        void Update(ProductImage productImage);
     }
 }
