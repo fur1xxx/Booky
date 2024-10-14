@@ -25,7 +25,7 @@ namespace Booky.DataAccess.Data
                 .AddUserSecrets<ApplicationDbContext>()
                 .Build();
 
-            var connectionString = configuration.GetConnectionString("BookyConnection");
+            var connectionString = configuration.GetConnectionString("BookyMySqlConnection");
 
             optionsBuilder
               .UseMySQL(connectionString)
