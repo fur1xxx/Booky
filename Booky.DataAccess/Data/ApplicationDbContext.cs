@@ -28,7 +28,7 @@ namespace Booky.DataAccess.Data
             var connectionString = configuration.GetConnectionString("BookyConnection");
 
             optionsBuilder
-              .UseSqlServer(connectionString)
+              .UseMySQL(connectionString)
               .EnableDetailedErrors()
               .EnableSensitiveDataLogging()
               .LogTo(Console.WriteLine, new[] { DbLoggerCategory.Database.Command.Name }, Microsoft.Extensions.Logging.LogLevel.Information);
