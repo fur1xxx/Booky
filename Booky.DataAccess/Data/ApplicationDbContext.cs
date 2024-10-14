@@ -25,10 +25,10 @@ namespace Booky.DataAccess.Data
                 .AddUserSecrets<ApplicationDbContext>()
                 .Build();
 
-            var connectionString = configuration.GetConnectionString("BookyMySqlConnection");
+            var connectionString = configuration.GetConnectionString("BookyConnection");
 
             optionsBuilder
-              .UseMySQL(connectionString)
+              .UseSqlServer(connectionString)
               .EnableDetailedErrors()
               .EnableSensitiveDataLogging()
               .LogTo(Console.WriteLine, new[] { DbLoggerCategory.Database.Command.Name }, Microsoft.Extensions.Logging.LogLevel.Information);
