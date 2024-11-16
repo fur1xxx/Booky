@@ -13,7 +13,7 @@ namespace Booky.DataAccess.Migrations
             migrationBuilder.AddColumn<string>(
                 name: "ImageUrl",
                 table: "Products",
-                type: "nvarchar(max)",
+                type: "VARCHAR(255)",
                 nullable: false,
                 defaultValue: "");
 

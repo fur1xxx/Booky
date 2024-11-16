@@ -15,11 +15,11 @@ namespace Booky.DataAccess.Migrations
             migrationBuilder.AlterColumn<string>(
                 name: "Name",
                 table: "Categories",
-                type: "nvarchar(100)",
+                type: "TEXT",
                 maxLength: 100,
                 nullable: false,
                 oldClrType: typeof(string),
-                oldType: "nvarchar(max)");
+                oldType: "TEXT");
 
             migrationBuilder.CreateTable(
                 name: "Products",
@@ -27,14 +27,14 @@ namespace Booky.DataAccess.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    Title = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Description = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    ISBN = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Author = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    ListPrice = table.Column<double>(type: "float", nullable: false),
-                    Price = table.Column<double>(type: "float", nullable: false),
-                    PriceForFifty = table.Column<double>(type: "float", nullable: false),
-                    PriceForOneHundred = table.Column<double>(type: "float", nullable: false)
+                    Title = table.Column<string>(type: "TEXT", nullable: false),
+                    Description = table.Column<string>(type: "TEXT", nullable: false),
+                    ISBN = table.Column<string>(type: "TEXT", nullable: false),
+                    Author = table.Column<string>(type: "TEXT", nullable: false),
+                    ListPrice = table.Column<double>(type: "double", nullable: false),
+                    Price = table.Column<double>(type: "double", nullable: false),
+                    PriceForFifty = table.Column<double>(type: "double", nullable: false),
+                    PriceForOneHundred = table.Column<double>(type: "double", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -64,10 +64,10 @@ namespace Booky.DataAccess.Migrations
             migrationBuilder.AlterColumn<string>(
                 name: "Name",
                 table: "Categories",
-                type: "nvarchar(max)",
+                type: "TEXT",
                 nullable: false,
                 oldClrType: typeof(string),
-                oldType: "nvarchar(100)",
+                oldType: "TEXT",
                 oldMaxLength: 100);
         }
     }

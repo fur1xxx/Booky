@@ -15,7 +15,7 @@ namespace Booky.DataAccess.Migrations
             migrationBuilder.AlterColumn<string>(
                 name: "Name",
                 table: "Companies",
-                type: "nvarchar(max)",
+                type: "TEXT",
                 nullable: false,
                 oldClrType: typeof(int),
                 oldType: "int");
@@ -55,7 +55,7 @@ namespace Booky.DataAccess.Migrations
                 type: "int",
                 nullable: false,
                 oldClrType: typeof(string),
-                oldType: "nvarchar(max)");
+                oldType: "TEXT");
         }
     }
 }

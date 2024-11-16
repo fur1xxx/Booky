@@ -13,13 +13,13 @@ namespace Booky.DataAccess.Migrations
             migrationBuilder.AddColumn<string>(
                 name: "City",
                 table: "AspNetUsers",
-                type: "nvarchar(max)",
+                type: "VARCHAR(255)",
                 nullable: true);
 
             migrationBuilder.AddColumn<string>(
                 name: "Discriminator",
                 table: "AspNetUsers",
-                type: "nvarchar(21)",
+                type: "VARCHAR(255)",
                 maxLength: 21,
                 nullable: false,
                 defaultValue: "");
@@ -27,25 +27,30 @@ namespace Booky.DataAccess.Migrations
             migrationBuilder.AddColumn<string>(
                 name: "Name",
                 table: "AspNetUsers",
-                type: "nvarchar(max)",
+                type: "VARCHAR(255)",
                 nullable: true);
 
             migrationBuilder.AddColumn<string>(
                 name: "PostalCode",
                 table: "AspNetUsers",
-                type: "nvarchar(max)",
+                type: "VARCHAR(255)",
                 nullable: true);
 
             migrationBuilder.AddColumn<string>(
                 name: "State",
                 table: "AspNetUsers",
-                type: "nvarchar(max)",
+                type: "VARCHAR(255)",
                 nullable: true);
 
             migrationBuilder.AddColumn<string>(
                 name: "StreetAddress",
                 table: "AspNetUsers",
-                type: "nvarchar(max)",
+                type: "VARCHAR(255)",
+                nullable: true);
+            
+            migrationBuilder.AddColumn<int>(
+                name: "CompanyId",
+                table: "AspNetUsers",
                 nullable: true);
         }
 
@@ -54,6 +59,10 @@ namespace Booky.DataAccess.Migrations
         {
             migrationBuilder.DropColumn(
                 name: "City",
+                table: "AspNetUsers");
+
+            migrationBuilder.DropColumn(
+                name: "CompanyId",
                 table: "AspNetUsers");
 
             migrationBuilder.DropColumn(
