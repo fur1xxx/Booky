@@ -21,18 +21,32 @@ namespace Booky.DataAccess.Data
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            var configuration = new ConfigurationBuilder()
-                .AddUserSecrets<ApplicationDbContext>()
-                .Build();
+            if (!optionsBuilder.IsConfigured)
+            {
+                var configuration = new ConfigurationBuilder()
+                    .SetBasePath(AppContext.BaseDirectory)
+                    .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true) // for Docker & general fallback
+#if DEBUG
+                    .AddUserSecrets<ApplicationDbContext>() // only used during development
+#endif
+                    .AddEnvironmentVariables() // for Docker
+                    .Build();
 
-            var connectionString = configuration.GetConnectionString("BookyConnection");
+                var connectionString = configuration.GetConnectionString("BookyConnection");
 
-            optionsBuilder
-              .UseSqlServer(connectionString)
-              .EnableDetailedErrors()
-              .EnableSensitiveDataLogging()
-              .LogTo(Console.WriteLine, new[] { DbLoggerCategory.Database.Command.Name }, Microsoft.Extensions.Logging.LogLevel.Information);
+                if (string.IsNullOrEmpty(connectionString))
+                {
+                    throw new InvalidOperationException("Connection string 'BookyConnection' was not found.");
+                }
+
+                optionsBuilder
+                    .UseSqlServer(connectionString)
+                    .EnableDetailedErrors()
+                    .EnableSensitiveDataLogging()
+                    .LogTo(Console.WriteLine, new[] { DbLoggerCategory.Database.Command.Name }, Microsoft.Extensions.Logging.LogLevel.Information);
+            }
         }
+
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

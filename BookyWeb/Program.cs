@@ -17,8 +17,13 @@ namespace BookyWeb
         private static void Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
-
-
+            
+            // Configure Kestrel to listen on all interfaces
+            builder.WebHost.ConfigureKestrel(serverOptions =>
+            {
+                serverOptions.ListenAnyIP(80); // Listen on port 80 on all network interfaces
+            });
+            
             // Add services to the container.
             builder.Services.AddControllersWithViews()
                 .AddNewtonsoftJson(options =>
