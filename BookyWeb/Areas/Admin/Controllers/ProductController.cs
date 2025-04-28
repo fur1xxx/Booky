@@ -29,21 +29,17 @@ namespace BookyWeb.Areas.Admin.Controllers
         public IActionResult Index()
         {
             List<Product> objProductList = unitOfWork.Product.GetAll(includeProperties: "Category").ToList();
-
             return View(objProductList);
         }
 
         public IActionResult Upsert(int? id)
         {
-
             IEnumerable<SelectListItem> categoryList = unitOfWork.Category.GetAll().Select(x => new SelectListItem()
             {
                 Text = x.Name,
                 Value = x.Id.ToString()
             });
 
-            //ViewBag.categoryList = categoryList;
-            //ViewData["CategoryList"] = categoryList;
             ProductVM productVM = new()
             {
                 CategoryList = categoryList,
@@ -80,13 +76,14 @@ namespace BookyWeb.Areas.Admin.Controllers
 
                 string wwwRootPath = webHostEnvironment.WebRootPath;
 
-                if (files != null)
+                if (files != null && files.Count > 0)
                 {
                     foreach (var file in files)
                     {
                         string fileName = Guid.NewGuid().ToString() + Path.GetExtension(file.FileName);
-                        string productPath = @"images\products\product-" + productVM.Product.Id;
-                        string finalPath = Path.Combine(wwwRootPath, productPath);
+                        // Use Path.Combine for creating directory paths
+                        string productPathRelative = Path.Combine("images", "products", $"product-{productVM.Product.Id}");
+                        string finalPath = Path.Combine(wwwRootPath, productPathRelative);
 
                         if (!Directory.Exists(finalPath))
                         {
@@ -98,9 +95,12 @@ namespace BookyWeb.Areas.Admin.Controllers
                             file.CopyTo(fileStream);
                         }
 
+                        // Store the image URL with forward slashes for cross-platform compatibility
+                        string imageUrl = "/" + productPathRelative.Replace('\\', '/') + "/" + fileName;
+                        
                         ProductImage productImage = new()
                         {
-                            ImageUrl = @"\" + productPath + @"\" + fileName,
+                            ImageUrl = imageUrl,
                             ProductId = productVM.Product.Id,
                         };
 
@@ -134,12 +134,13 @@ namespace BookyWeb.Areas.Admin.Controllers
         public IActionResult DeleteImage(int imageId)
         {
             var imageToDelete = unitOfWork.ProductImage.Get(x => x.Id == imageId);
-
             int productId = imageToDelete.ProductId;
 
             if (!string.IsNullOrEmpty(imageToDelete.ImageUrl))
             {
-                var oldImagePath = Path.Combine(webHostEnvironment.WebRootPath, imageToDelete.ImageUrl.TrimStart('\\'));
+                // Handle path correctly - the DB stores URLs with forward slashes
+                string relativePath = imageToDelete.ImageUrl.TrimStart('/');
+                var oldImagePath = Path.Combine(webHostEnvironment.WebRootPath, relativePath);
 
                 if (System.IO.File.Exists(oldImagePath))
                 {
@@ -160,13 +161,6 @@ namespace BookyWeb.Areas.Admin.Controllers
         public IActionResult GetAll()
         {
             List<Product> objProductList = unitOfWork.Product.GetAll(includeProperties: "Category").ToList();
-
-            //var jsonOptions = new JsonSerializerOptions
-            //{
-            //    ReferenceHandler = ReferenceHandler.Preserve,
-            //    // Other serializator's parameters
-            //};
-
             return Json(new { data = objProductList });
         }
 
@@ -180,8 +174,9 @@ namespace BookyWeb.Areas.Admin.Controllers
                 return Json(new { success = false, message = "Error while deleting" });
             }
 
-            string productPath = @"images\products\product-" + id;
-            string finalPath = Path.Combine(webHostEnvironment.WebRootPath, productPath);
+            // Use Path.Combine for creating directory paths
+            string productPathRelative = Path.Combine("images", "products", $"product-{id}");
+            string finalPath = Path.Combine(webHostEnvironment.WebRootPath, productPathRelative);
 
             if (Directory.Exists(finalPath))
             {
@@ -196,7 +191,6 @@ namespace BookyWeb.Areas.Admin.Controllers
             }
 
             unitOfWork.Product.Delete(productToBeDeleted);
-
             unitOfWork.Save();
 
             return Json(new { success = true, message = "Delete successful" });
